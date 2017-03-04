@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NotesApp</title>
+</head>
+<link rel="stylesheet" media="all" href="css/normalize.css" debug="false"/>
+<link rel="stylesheet" media="all" href="css/app.css" debug="true"/>
+
+<body>
+<div class="page-wrapper">
+    <div class="page">
+    <main id="login-page" class="hidden view">
+        <div class="content">
+            <form autocomplete="off" aria-label="login form">
+                <input type="email" required autocomplete="off" autofocus name="email" aria-label="email for login"/>
+                <input type="password" required autocomplete="off" autofocus name="password"
+                       aria-label="password for login"/>
+                <input type="submit" aria-label="sign-in button">
+            </form>
+        </div>
+    </main>
+    <main id="main-page" class="view">
+        <div class="top-menu-bar">
+            <div class="left-side">
+                <strong>Online</strong>
+            </div>
+            <div class="right-side">
+                <a class="bar-link" id="username-top-bar">Name Surname</a>
+                <a class="bar-link" id="logout">Sign out</a>
+            </div>
+        </div>
+        <div class="sections">
+        <div class="section workspaces">
+            <div class="content">
+                <div class="section-title-bar workspaces-title-bar">
+                    <div class="title">Workspaces</div>
+                    <div class="add-button" id="workspaces-add-button">+</div>
+                </div>
+                <div class="scrollable" id="workspaces-list-container"></div>
+            </div>
+        </div>
+        <div class="section notes">
+            <div class="content">
+                <div class="section-title-bar notes-title-bar">
+                    <div class="title">Notes</div>
+                    <div class="add-button" id="notes-add-button">+</div>
+                </div>
+            </div>
+        </div>
+        <div class="section chat">
+            <div class="content">
+                <div class="section-title-bar chat-title-bar">
+                    <div class="title" id="chat-workspace-name">Workspace Name</div>
+                </div>
+                <div people="people-bar">
+                    <div class="person"><a href="#">Fokion Sotiropoulos</a><div class="delete-button">X</div></div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+    </div>
+</div>
+</body>
+<script src="js/models/Workspace.js" debug="true"></script>
+<script src="js/models/User.js" debug="true"></script>
+<script src="js/models/Note.js" debug="true"></script>
+<script src="js/comm/Fetcher.js" debug="true"></script>
+<script src="js/events/EventBroker.js" debug="true"></script>
+<script src="js/DomImpl.js" debug="true"></script>
+<script src="js/UtilsImpl.js" debug="true"></script>
+<script src="js/Renderer.js" debug="true"></script>
+<script src="js/Store.js" debug="true"></script>
+<script src="js/comm/Socket.js" debug="true"></script>
+<script src="lib/jquery-3.1.1.min.js" debug="false"></script>
+<script src="lib/fastdom.min.js" debug="false"></script>
+<script src="lib/hashes.min.js" debug="false"></script>
+<script src="js/App.js" debug="true"></script>
+</html>

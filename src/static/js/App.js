@@ -24,7 +24,7 @@ function NotesAppImpl() {
     }
 
     function updateWorkspaceNameHandler(newWorkspaceName){
-         storage.updateCurrentWorkspaceInfo({"name":newWorkspaceName});
+         storage.updateCurrentWorkspaceInfo({"label":newWorkspaceName});
          broker.publish("workspace-updated",[storage.getCurrentWorkspace()]);
     }
 

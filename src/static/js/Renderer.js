@@ -48,7 +48,7 @@ function Renderer(eventBroker){
             var classes = container.className.split(" ");
             var pos = classes.indexOf("selected");
             if(pos !== -1) {
-                classes = classes.splice(pos, 1);
+                classes.splice(pos,1);
             }
             container.className = classes.join(" ");
         }
@@ -67,7 +67,6 @@ function Renderer(eventBroker){
      });
      workspaceContainer.appendChild(label);
      document.getElementById("workspaces-list-container").appendChild(workspaceContainer);
-     return workspaceContainer;
     }
     me.renderWorkspaceItem = renderWorkspaceItem;
     function updateWorkspaceItem(workspace){

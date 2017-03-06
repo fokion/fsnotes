@@ -24,5 +24,16 @@ function DomImpl() {
         while (container && container.hasChildNodes()) {
             container.removeChild(container.lastChild);
         }
-    }
+    };
+    me.createMoreDropDown = function (id) {
+        var button = me.createElement("button", {"classes": ["mdl-button", "mdl-js-button", "mdl-button--icon"]});
+        button.id = id;
+        var icon = me.createElement("i", {"classes": ["material-icons"]});
+        icon.textContent = "more_vert";
+        button.appendChild(icon);
+        return button;
+    };
+    me.createDropDownView = function (views) {
+
+    };
 }

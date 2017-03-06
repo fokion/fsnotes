@@ -7,4 +7,5 @@ function Workspace(){
     this.owner = "";
     this.users = [];
     this.notes = [];
+    this.messages = [];
 }

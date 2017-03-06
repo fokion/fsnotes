@@ -13,14 +13,41 @@ function NotesAppImpl() {
         renderer = new Renderer(broker);
         broker.subscribe("switch-workspace", switchWorkspace);
         broker.subscribe("current-workspace-updated-name",updateWorkspaceNameHandler);
+        storage.fetchWorkspaces(displayWorkspaces);
+
     };
     document.getElementById("workspaces-add-button").addEventListener("click", addWorkspaceHandler, true);
-
+    document.getElementById("messages-submit-button").addEventListener("click",addMessageHandler,true);
+    document.getElementById("message").addEventListener("keydown",updateCurrentTextHandler,true);
+    function displayWorkspaces(workspaces){
+        workspaces.map(renderer.renderWorkspaceItem);
+        switchWorkspace(workspaces[0].id);
+    }
+    function updateCurrentTextHandler(){
+        var txt = document.getElementById("message").value;
+        storage.setCurrentText(txt);
+    }
+    function addMessageHandler(){
+        var msg = new Message(getItemID(),
+            storage.getCurrentUser().id,
+            storage.getCurrentText(),
+            storage.getCurrentWorkspaceID()
+        );
+        storage.addMessage(msg);
+        renderer.displayMessage(renderer.getMessageContainer(),msg);
+        renderer.clearMessageInput();
+    }
     function switchWorkspace(workspaceId) {
         storage.fetchWorkspaceNotes(workspaceId,renderer.displayNotes);
+        var prevWorkspace = storage.getCurrentWorkspace();
+        if(prevWorkspace) {
+            renderer.clearWorkspaceSelected(prevWorkspace);
+        }
+        storage.setCurrentWorkspaceID(workspaceId);
         var workspace = storage.getWorkspaceByID(workspaceId);
+        renderer.setWorkspaceSelected(workspace);
         renderer.displayWorkspaceName(workspace.label);
-        //storage.fetchWorkspaceChat(workspaceId,renderer.displayWorkspaceChat);
+        storage.fetchWorkspaceChat(workspaceId,renderer.displayWorkspaceChat);
     }
 
     function updateWorkspaceNameHandler(newWorkspaceName){
@@ -28,7 +55,7 @@ function NotesAppImpl() {
          broker.publish("workspace-updated",[storage.getCurrentWorkspace()]);
     }
 
-    function addWorkspaceHandler(e) {
+    function addWorkspaceHandler(event) {
         var workspace = new Workspace();
         workspace.id = getItemID();
         workspace.owner = storage.getCurrentUser().id;
@@ -36,10 +63,10 @@ function NotesAppImpl() {
         storage.addWorkspace(workspace);
         renderer.renderWorkspaceItem(workspace);
         var currentWorkspace = storage.getCurrentWorkspace();
-        if (currentWorkspace !== null) {
+        if (currentWorkspace) {
             renderer.clearWorkspaceSelected(currentWorkspace);
         }
-        storage.setCurrentWorkspace(workspace);
+        storage.setCurrentWorkspaceID(workspace.id);
         renderer.setWorkspaceSelected(workspace);
     }
 

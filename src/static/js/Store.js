@@ -12,7 +12,7 @@ function Store() {
     var workspacesMap = {};
     var workspaces = null;
 
-
+    var currentText = "";
     var currentWorkspaceID = null;
 
     var currentUser = new User();
@@ -28,6 +28,7 @@ function Store() {
     me.addWorkspace = function (workspace) {
         workspacesMap[workspace.id] = workspace;
         workspaces = null;
+        fetcher.saveWorkspace(workspace);
     };
 
     me.addUser = function (user) {
@@ -52,7 +53,7 @@ function Store() {
 
     me.getWorkspaces = function () {
         if (workspaces === null) {
-            workspaces = getItemsFromMap(workspaces);
+            workspaces = getItemsFromMap(workspacesMap);
         }
         return workspaces;
     };
@@ -68,8 +69,14 @@ function Store() {
         return null;
     };
 
-    me.setCurrentWorkspace = function(workspace){
-        currentWorkspaceID = workspace.id;
+    me.setCurrentWorkspaceID = function(workspaceId){
+        currentWorkspaceID = workspaceId;
+    };
+    me.getCurrentWorkspaceID = function(){
+        return currentWorkspaceID;
+    };
+    me.getCurrentText = function(){
+        return currentText;
     };
 
     me.fetchWorkspaceNotes = function(workspaceID , callback){
@@ -78,9 +85,24 @@ function Store() {
             workspace.notes = notes;
             callback(workspace.notes);
         });
-
     };
 
+    me.setCurrentText = function(txt){
+        currentText = txt;
+    };
+
+    me.addMessage = function(message){
+        var workspace = me.getCurrentWorkspace();
+        workspace.messages.push(message);
+        fetcher.saveChatForWorkspace(workspace.id, workspace.messages);
+    };
+    me.fetchWorkspaceChat = function(workspaceID , callback){
+        var workspace = workspacesMap[workspaceID];
+        fetcher.getChatForWorkspace(workspaceID,function(messages){
+            workspace.messages = messages;
+            callback(workspace.messages);
+        });
+    };
     me.updateCurrentWorkspaceInfo = function(updatesObj){
         var workspace = workspacesMap[currentWorkspaceID];
         if(workspace && updatesObj && typeof updatesObj === "object") {
@@ -90,10 +112,19 @@ function Store() {
                 }
             }
         }
+        fetcher.saveWorkspace(workspace);
     };
 
     me.getWorkspaceByID = function(workspaceID){
         return workspacesMap[workspaceID];
+    };
+
+    me.fetchWorkspaces = function(callback){
+        fetcher.getWorkspaces(function(map){
+            workspacesMap = map;
+            workspaces = null;
+            callback(me.getWorkspaces());
+        });
     };
 
 

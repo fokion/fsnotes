@@ -3,68 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <title>NotesApp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <link rel="stylesheet" media="all" href="css/normalize.css" debug="false"/>
 <link rel="stylesheet" media="all" href="css/app.css" debug="true"/>
-
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" async>
+<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css" async>
 <body>
 <div class="page-wrapper">
     <div class="page">
-    <main id="login-page" class="hidden view">
-        <div class="content">
-            <form autocomplete="off" aria-label="login form">
-                <input type="email" required autocomplete="off" autofocus name="email" aria-label="email for login"/>
-                <input type="password" required autocomplete="off" autofocus name="password"
-                       aria-label="password for login"/>
-                <input type="submit" aria-label="sign-in button">
-            </form>
-        </div>
-    </main>
-    <main id="main-page" class="view">
-        <div class="top-menu-bar">
-            <div class="left-side">
-                <strong>Online</strong>
-            </div>
-            <div class="right-side">
-                <a class="bar-link" id="username-top-bar">Name Surname</a>
-                <a class="bar-link" id="logout">Sign out</a>
-            </div>
-        </div>
-        <div class="sections">
-        <div class="section workspaces">
+        <main id="login-page" class="hidden view">
             <div class="content">
-                <div class="section-title-bar workspaces-title-bar">
-                    <div class="title">Workspaces</div>
-                    <div class="add-button" id="workspaces-add-button">+</div>
-                </div>
-                <div class="scrollable" id="workspaces-list-container"></div>
+                <form autocomplete="off" aria-label="login form">
+                    <input type="email" required autocomplete="off" autofocus name="email"
+                           aria-label="email for login"/>
+                    <input type="password" required autocomplete="off" autofocus name="password"
+                           aria-label="password for login"/>
+                    <input type="submit" aria-label="sign-in button">
+                </form>
             </div>
-        </div>
-        <div class="section notes">
-            <div class="content">
-                <div class="section-title-bar notes-title-bar">
-                    <div class="title">Notes</div>
-                    <div class="add-button" id="notes-add-button">+</div>
+        </main>
+        <main id="main-page" class="view">
+            <div class="top-menu-bar">
+                <div class="left-side">
+                    <strong>Online</strong>
                 </div>
-            </div>
-        </div>
-        <div class="section chat">
-            <div class="content">
-                <div class="section-title-bar chat-title-bar">
-                    <div class="title" id="chat-workspace-name">Workspace Name</div>
-                </div>
-                <div people="people-bar">
-                    <div class="person"><a href="#">Fokion Sotiropoulos</a><div class="delete-button">X</div></div>
+                <div class="right-side">
+                    <a class="bar-link" id="username-top-bar">Name Surname</a>
+                    <a class="bar-link" id="logout">Sign out</a>
                 </div>
             </div>
-        </div>
-        </div>
-    </main>
+            <div class="sections mdl-grid">
+                <div class="section workspaces mdl-cell mdl-cell--4-col mdl-cell--2-col-phone">
+                    <div class="content">
+                        <div class="mdl-card__title">
+                            <div class="title">Workspaces</div>
+                            <div class="mdl-layout-spacer"></div>
+                            <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab add-button"
+                                    id="workspaces-add-button">
+                                <i class="material-icons">add</i>
+                            </button>
+                        </div>
+                        <div class="scrollable" id="workspaces-list-container"></div>
+                    </div>
+                </div>
+                <div class="section workspace-content mdl-cell mdl-cell--10-col mdl-cell--4-col-phone">
+                    <div class="content">
+                        <div class="mdl-card__title">
+                            <label for="chat-workspace-name">Workspace</label>
+                            <span class="mdl-chip">
+                            <span class="mdl-card__title-text mdl-chip__text"
+                                  id="chat-workspace-name">Workspace Name</span>
+                        </span>
+                        </div>
+                        <div class="mdl-card__actions mdl-card--border">
+                            <div class="mdl-card__actions">
+                                <label for="people-bar">Members</label>
+                                <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab add-button"
+                                        id="people-add-button">
+                                    <i class="material-icons">add</i>
+                                </button>
+                                <div class="mdl-layout-spacer"></div>
+
+                                <div class="people-bar" id="people-bar"></div>
+                            </div>
+                        </div>
+                        <main class="mdl-layout__content mdl-color--grey-100">
+                            <div id="messages-card-container">
+                                <div id="messages-card"
+                                     class="mdl-card mdl-shadow--2dp">
+                                    <div class="mdl-card__supporting-text mdl-color-text--grey-600">
+                                        <div id="messages">
+
+                                        </div>
+                                        <form id="message-form" action="#">
+                                            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                                                <input class="mdl-textfield__input" type="text" id="message">
+                                                <label class="mdl-textfield__label" for="message">Message...</label>
+                                            </div>
+                                            <button id="messages-submit-button" id="messages-submit-button" type="submit"
+                                                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">
+                                                Send
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </main>
+
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 </div>
 </body>
+<script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 <script src="js/models/Workspace.js" debug="true"></script>
 <script src="js/models/User.js" debug="true"></script>
+<script src="js/models/Message.js" debug="true"></script>
 <script src="js/models/Note.js" debug="true"></script>
 <script src="js/comm/Fetcher.js" debug="true"></script>
 <script src="js/events/EventBroker.js" debug="true"></script>

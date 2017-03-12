@@ -156,5 +156,5 @@ html body{
 
 #messages-card-container , #messages-card{
     width:100%;
-    height:calc(100vh - 200px);
+    height: calc(100% - calc(73px + 68px));
 }

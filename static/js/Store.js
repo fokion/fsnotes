@@ -94,7 +94,7 @@ function Store() {
     me.addMessage = function(message){
         var workspace = me.getCurrentWorkspace();
         workspace.messages.push(message);
-        fetcher.saveChatForWorkspace(workspace.id, workspace.messages);
+        fetcher.saveChatForWorkspace(workspace.id, message);
     };
     me.fetchWorkspaceChat = function(workspaceID , callback){
         var workspace = workspacesMap[workspaceID];

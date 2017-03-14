@@ -3,6 +3,59 @@
  */
 function Fetcher() {
     var me = this;
+    function get(url , args , onLoadHandler , onProgressHandler , onErrorHandler , onAbortHandler){
+        var xhr = new XMLHttpRequest();
+        var elems = [];
+        args.map(function(arg){
+            elems.push(arg.key+"="+arg.val);
+        });
+        url+="?"+elems.join("&");
+        xhr.open('GET', url, true);
+        xhr.addEventListener("load", function(event){
+            if(this.readyState === 4) { // done
+                if (this.status == 200) {
+                    if(onLoadHandler) {
+                        onLoadHandler(this.response);
+                    }
+                }
+            }
+        });
+        xhr.addEventListener("progress",function(event){
+            if (onProgressHandler && event.lengthComputable) {
+                onProgressHandler(event.loaded / oEvent.total);
+            }
+        });
+        xhr.addEventListener("error", function(event){if(onErrorHandler) {
+            onErrorHandler(event);
+        }else{
+            console.error(event)
+        }});
+        xhr.addEventListener("abort", function (event) {
+            if(onAbortHandler){
+                onAbortHandler(event);
+            }
+        });
+        xhr.send();
+        return xhr;
+    }
+    function postForm(url , data , onLoadHandler){
+        var formData = new FormData();
+        for(var key in data) {
+            formData.append(key,data[key]);
+        }
+        var xhr = new XMLHttpRequest();
+        //xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.open('POST', url, true);
+        xhr.addEventListener("load", function(event){
+            if(this.readyState === 4) { // done
+                if (this.status == 200) {
+                    onLoadHandler(this.response);
+                }
+            }
+        });
+        xhr.send(formData);
+        return xhr;
+    }
     me.getNotesForWorkspace = function (workspaceID, callback) {
         var note1 = new Note();
         note1.id = "1234";
@@ -19,36 +72,43 @@ function Fetcher() {
         callback([note1, note2]);
     };
      function getChatForWorkspace (workspaceID , callback){
-        var map = localStorage.getItem("chat-"+workspaceID);
-        if(map){
-            var elems = JSON.parse(map);
-            var messages = [];
-            elems.map(function(elem){
-               messages.push(window.Notes.Utils.castObject(elem,Message));
-            });
-            callback(messages);
-            return;
-        }
-        return([]);
+      get("/chat",[{"key":"workspaceID","val":workspaceID}],function(resp){
+          if(resp){
+              var elems = JSON.parse(resp);
+              if(elems) {
+                  var messages = [];
+                  elems.map(function (elem) {
+                      messages.push(window.Notes.Utils.castObject(elem, Message));
+                  });
+                  callback(messages);
+                  return;
+              }
+          }
+          return([]);
+      });
+
     }
     me.getChatForWorkspace = getChatForWorkspace;
 
-    me.saveChatForWorkspace = function(workspaceID, messages){
-        localStorage.setItem("chat-"+workspaceID, JSON.stringify(messages));
+    me.saveChatForWorkspace = function(workspaceID, message){
+        postForm("/create/chat",{"author":message.author,"workspaceID":workspaceID,"text":message.text},function(resp){
+            console.log(resp);
+        });
     };
 
     function getWorkspaces (callback) {
-        var map = localStorage.getItem("workspaces");
-        if(map){
-            var elems = JSON.parse(map);
-            var ws = {};
-            for(var id in elems){
-                ws[id] = window.Notes.Utils.castObject(elems[id],Workspace);
+        get("/workspaces",[],function(resp) {
+            if (resp) {
+                var workspaces = JSON.parse(resp);
+                var ws = {};
+                workspaces.map(function(elem){
+                    ws[elem.id] = window.Notes.Utils.castObject(elem, Workspace);
+                });
+                callback(ws);
+                return;
             }
-            callback(ws);
-            return;
-        }
-        callback({});
+            callback({});
+        });
     }
     me.getWorkspaces  = getWorkspaces;
 

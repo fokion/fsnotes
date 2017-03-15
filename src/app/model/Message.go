@@ -1,9 +1,11 @@
 package model
 
+import "gopkg.in/mgo.v2/bson"
+
 type Message struct {
-	Id        string `json:"id" bson:"_id,omitempty"`
-	Text      string `json:"text" bson:"text,omitempty"`
-	Owner     string `json:"author" bson:"owner,omitempty"`
-	Timestamp int64  `json:"timestamp" bson:"timestamp,omitempty"`
-	Workspace string `json:"workspaceID" bson:"workspace,omitempty"`
+	Id        bson.ObjectId `json:"id,omitempty" bson:"_id"`
+	Text      string        `json:"text,omitempty" bson:"text"`
+	Owner     string        `json:"author,omitempty" bson:"owner"`
+	Timestamp int64         `json:"timestamp,omitempty" bson:"timestamp"`
+	Workspace string        `json:"workspaceID,omitempty" bson:"workspace"`
 }

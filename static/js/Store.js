@@ -25,10 +25,14 @@ function Store() {
         notesMap[note.id] = note;
         notes = null;
     };
-    me.addWorkspace = function (workspace) {
-        workspacesMap[workspace.id] = workspace;
-        workspaces = null;
-        fetcher.saveWorkspace(workspace);
+    me.addWorkspace = function (workspace,callback) {
+        fetcher.saveWorkspace(workspace,function(resp){
+            var respObj = JSON.parse(resp);
+            workspace.id = respObj.id;
+            workspacesMap[workspace.id] = workspace;
+            workspaces = null;
+            callback(workspace);
+        });
     };
 
     me.addUser = function (user) {
@@ -103,7 +107,7 @@ function Store() {
             callback(workspace.messages);
         });
     };
-    me.updateCurrentWorkspaceInfo = function(updatesObj){
+    me.updateCurrentWorkspaceInfo = function(updatesObj,callback){
         var workspace = workspacesMap[currentWorkspaceID];
         if(workspace && updatesObj && typeof updatesObj === "object") {
             for (var propertyName in updatesObj) {
@@ -112,12 +116,20 @@ function Store() {
                 }
             }
         }
-        fetcher.saveWorkspace(workspace);
+        fetcher.updateWorkspace(workspace,function(resp){
+            var wsObjects = JSON.parse(resp);
+            if(wsObjects){
+                workspace.label = wsObjects[0].label;
+                workspaces = null;
+            }
+            callback(workspace)
+        });
     };
 
     me.getWorkspaceByID = function(workspaceID){
         return workspacesMap[workspaceID];
     };
+
 
     me.fetchWorkspaces = function(callback){
         fetcher.getWorkspaces(function(map){

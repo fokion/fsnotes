@@ -98,8 +98,9 @@ function Fetcher() {
 
     function getWorkspaces (callback) {
         get("/workspaces",[],function(resp) {
-            if (resp) {
-                var workspaces = JSON.parse(resp);
+            var workspaces = JSON.parse(resp);
+            if (workspaces) {
+
                 var ws = {};
                 workspaces.map(function(elem){
                     ws[elem.id] = window.Notes.Utils.castObject(elem, Workspace);
@@ -112,10 +113,16 @@ function Fetcher() {
     }
     me.getWorkspaces  = getWorkspaces;
 
-    me.saveWorkspace = function(workspace){
-        getWorkspaces(function(workspaces) {
-            workspaces[workspace.id] = workspace;
-            localStorage.setItem("workspaces", JSON.stringify(workspaces));
-        });
+    me.updateWorkspace = function(workspace,callback){
+        postForm("/update/workspace",
+            {
+                "label":workspace.label,
+                "workspaceID":workspace.id,
+            },callback);
+    }
+    me.saveWorkspace = function(workspace,callback){
+        postForm("/create/workspace",{
+                "owner":workspace.owner
+            },callback);
     };
 }

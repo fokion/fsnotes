@@ -21,7 +21,9 @@ function NotesAppImpl() {
     document.getElementById("message").addEventListener("keydown",updateCurrentTextHandler,true);
     function displayWorkspaces(workspaces){
         workspaces.map(renderer.renderWorkspaceItem);
-        switchWorkspace(workspaces[0].id);
+        if(workspaces.length>0) {
+            switchWorkspace(workspaces[0].id);
+        }
     }
     function updateCurrentTextHandler(){
         var txt = document.getElementById("message").value;
@@ -51,16 +53,21 @@ function NotesAppImpl() {
     }
 
     function updateWorkspaceNameHandler(newWorkspaceName){
-         storage.updateCurrentWorkspaceInfo({"label":newWorkspaceName});
-         broker.publish("workspace-updated",[storage.getCurrentWorkspace()]);
+         storage.updateCurrentWorkspaceInfo({"label":newWorkspaceName},function(workspace) {
+             broker.publish("workspace-updated", [storage.getCurrentWorkspace()]);
+         });
     }
 
     function addWorkspaceHandler(event) {
+
         var workspace = new Workspace();
-        workspace.id = getItemID();
+        workspace.id = "";
         workspace.owner = storage.getCurrentUser().id;
         workspace.users = [storage.getCurrentUser()];
-        storage.addWorkspace(workspace);
+        storage.addWorkspace(workspace,workspaceAdded);
+
+    }
+    function workspaceAdded(workspace){
         renderer.renderWorkspaceItem(workspace);
         var currentWorkspace = storage.getCurrentWorkspace();
         if (currentWorkspace) {
@@ -70,9 +77,6 @@ function NotesAppImpl() {
         renderer.setWorkspaceSelected(workspace);
     }
 
-    function getItemID() {
-        return new Hashes.SHA512().hex((Date.now() * Math.random() * Math.random()).toString());
-    }
 
 }
 function ConfigurationImpl() {

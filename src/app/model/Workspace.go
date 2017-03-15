@@ -1,8 +1,10 @@
 package model
 
+import "gopkg.in/mgo.v2/bson"
+
 type Workspace struct {
-	Label   string `json:"label"`
-	Id      string `json:"id"`
-	Owner   string `json:"owner"`
-	Created int64  `json:created`
+	Label   string        `bson:"label" json:"label"`
+	Id      bson.ObjectId `bson:"_id" json:"id,omitempty"`
+	Owner   string        `bson:"owner" json:"owner,omitempty"`
+	Created int64         `bson:"created" json:created`
 }

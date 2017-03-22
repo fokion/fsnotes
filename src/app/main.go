@@ -2,12 +2,14 @@ package main
 
 import (
 	"app/model"
-
 	"encoding/json"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -15,13 +17,30 @@ var session *mgo.Session
 
 func main() {
 	var err error
-	session, err = mgo.Dial("127.0.0.1:32770")
+	var databaseURL = os.Getenv("DATABASE_URL")
+	if len(databaseURL) == 0 {
+		databaseURL = os.Args[1]
+	}
+	var databasePORT = os.Getenv("DATABASE_PORT")
+	if len(databasePORT) == 0 {
+		databasePORT = os.Args[2]
+	}
+	log.Println(databaseURL)
+	log.Println(databasePORT)
+	log.Println("--------------")
+	if len(databasePORT) == 0 && len(databaseURL) == 0 {
+		log.Panic("NO DATABASE URL AND PORT")
+	}
+	session, err = mgo.Dial(strings.Join([]string{databaseURL, databasePORT}, ":"))
 	if err != nil {
 		panic(err)
 	}
 	defer session.Close()
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/", fs)
+	http.HandleFunc("/login", loginUserHandler)
+	http.HandleFunc("/register", registerUserHandler)
+	http.HandleFunc("/overview", displayOverviewHandler)
 	http.HandleFunc("/create/workspace", createWorkspaceHandler)
 	http.HandleFunc("/update/workspace", updateWorkspaceHandler)
 	http.HandleFunc("/search/workspace", searchWorkspaceHandler)
@@ -30,6 +49,81 @@ func main() {
 	http.HandleFunc("/workspaces", getWorkspacesHandler)
 	log.Println("Listening...")
 	http.ListenAndServe(":3000", nil)
+
+}
+func userHandler(w http.ResponseWriter, r *http.Request) (email, pass string) {
+	var username string
+	var password string
+	if r.Method == "POST" {
+		err := r.ParseMultipartForm(1024)
+		if err != nil {
+			panic(err)
+		}
+		username = r.FormValue("username")
+		password = r.FormValue("password")
+	}
+	return username, password
+}
+func registerUserHandler(w http.ResponseWriter, r *http.Request) {
+	c := session.DB("app").C("users")
+	username, password := userHandler(w, r)
+	var user model.UserSecurityInfo
+	err := c.Find(bson.M{"email": username}).One(&user)
+	var registerResponse model.RegisterResponse
+	if err == nil {
+		registerResponse.Status = "EXISTS"
+		js, jsErr := json.Marshal(registerResponse)
+		if jsErr != nil {
+			http.Error(w, jsErr.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+		return
+	}
+	var hash, _ = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	id := bson.NewObjectId()
+	created := time.Now().Unix()
+
+	user = model.UserSecurityInfo{Id: id, Email: username, Password: hash, Created: created}
+	c.Insert(&user)
+	registerResponse.Status = "DONE"
+	js, jsErr := json.Marshal(registerResponse)
+	if jsErr != nil {
+		http.Error(w, jsErr.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+	return
+}
+func loginUserHandler(w http.ResponseWriter, r *http.Request) {
+	c := session.DB("app").C("users")
+	username, password := userHandler(w, r)
+
+	var user model.UserSecurityInfo
+	err := c.Find(bson.M{"email": username}).One(&user)
+	var loginResponse model.LoginResponse
+	loginResponse.Status = "ERROR"
+	if err == nil {
+		var hash, _ = bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		log.Println(bcrypt.CompareHashAndPassword(user.Password, hash))
+		if nil == bcrypt.CompareHashAndPassword(user.Password, hash) {
+			loginResponse.Status = "OK"
+			loginResponse.Url = "/overview"
+		}
+
+	}
+	js, jsErr := json.Marshal(loginResponse)
+	if jsErr != nil {
+		http.Error(w, jsErr.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+
+}
+func displayOverviewHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 func updateWorkspaceHandler(w http.ResponseWriter, r *http.Request) {

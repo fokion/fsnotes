@@ -95,10 +95,12 @@ function Store() {
         currentText = txt;
     };
 
-    me.addMessage = function(message){
-        var workspace = me.getCurrentWorkspace();
-        workspace.messages.push(message);
-        fetcher.saveChatForWorkspace(workspace.id, message);
+    me.addMessage = function(message, callback){
+        fetcher.saveChatForWorkspace( message , function(msg){
+            var workspace = workspacesMap[msg.workspaceID];
+            workspace.messages.push(msg);
+            callback(msg);
+        });
     };
     me.fetchWorkspaceChat = function(workspaceID , callback){
         var workspace = workspacesMap[workspaceID];

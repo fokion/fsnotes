@@ -90,9 +90,13 @@ function Fetcher() {
     }
     me.getChatForWorkspace = getChatForWorkspace;
 
-    me.saveChatForWorkspace = function(workspaceID, message){
-        postForm("/create/chat",{"author":message.author,"workspaceID":workspaceID,"text":message.text},function(resp){
-            console.log(resp);
+    me.saveChatForWorkspace = function(message , callback){
+        postForm("/create/chat",{"author":message.author,"workspaceID":message.workspaceID,"text":message.text},function(resp){
+            var msg = JSON.parse(resp);
+            if(msg){
+                message.id = msg.id;
+                callback(message);
+            }
         });
     };
 

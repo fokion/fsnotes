@@ -30,14 +30,16 @@ function NotesAppImpl() {
         storage.setCurrentText(txt);
     }
     function addMessageHandler(){
-        var msg = new Message(getItemID(),
+        var msg = new Message(
             storage.getCurrentUser().id,
             storage.getCurrentText(),
             storage.getCurrentWorkspaceID()
         );
-        storage.addMessage(msg);
-        renderer.displayMessage(renderer.getMessageContainer(),msg);
-        renderer.clearMessageInput();
+        storage.addMessage(msg,function(message){
+            renderer.displayMessage(renderer.getMessageContainer(),message);
+            renderer.clearMessageInput();
+        });
+
     }
     function switchWorkspace(workspaceId) {
         storage.fetchWorkspaceNotes(workspaceId,renderer.displayNotes);
